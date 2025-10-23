@@ -3,6 +3,42 @@
 
 ---
 
+## 🏗️ **PROJECT ARCHITECTURE OVERVIEW**
+
+### **Your Villa Upsell Project Structure:**
+```
+📁 villa-upsell-backend/     → Laravel API (Web Service)
+📁 villa-upsell-guest/       → React Guest Frontend (Static Site)
+📁 villa-upsell-admin/       → React Admin Frontend (Static Site)
+```
+
+### **Render Services You'll Create:**
+1. **Backend Web Service** (`villa-upsell-backend`)
+   - Laravel API with PostgreSQL database
+   - Handles payments, notifications, webhooks
+   - URL: `https://your-backend-service.onrender.com`
+
+2. **Guest Static Site** (`villa-upsell-guest`)
+   - React frontend for guests/customers
+   - Handles property access, checkout, payments
+   - URL: `https://your-guest-service.onrender.com`
+
+3. **Admin Static Site** (`villa-upsell-admin`)
+   - React frontend for property managers
+   - Handles property management, vendor setup
+   - URL: `https://your-admin-service.onrender.com`
+
+4. **PostgreSQL Database**
+   - Shared database for all services
+   - Stores properties, orders, users, vendors
+
+### **Environment Variables Setup:**
+- **Backend**: All API keys, database connection, app URLs
+- **Guest Frontend**: API URL, Stripe publishable key
+- **Admin Frontend**: API URL, Stripe publishable key
+
+---
+
 ## 📋 **PRE-DEPLOYMENT CHECKLIST**
 
 ### ✅ **Completed Tasks:**
@@ -126,60 +162,77 @@
 3. **Environment**: `PHP`
 
 ### **Step 3.3: Configure Environment Variables**
-1. **In Render Dashboard, add these environment variables:**
+1. **In Render Dashboard, go to your Backend Web Service**
+2. **Click "Environment" tab**
+3. **Add these environment variables one by one:**
 
-   ```env
-   # Application
+   **Application Variables:**
+   ```
    APP_NAME=Villa Upsell
    APP_ENV=production
    APP_KEY=base64:your_generated_app_key
    APP_DEBUG=false
    APP_TIMEZONE=UTC
    APP_URL=https://your-backend-service.onrender.com
-   APP_FRONTEND_URL=https://your-frontend-service.onrender.com
+   APP_FRONTEND_URL=https://your-guest-frontend-service.onrender.com
+   APP_ADMIN_URL=https://your-admin-frontend-service.onrender.com
+   ```
 
-   # Database (use Internal Database URL from Phase 2)
+   **Database Variables (use values from Phase 2):**
+   ```
    DB_CONNECTION=pgsql
    DB_HOST=dpg-xxxxx-a.oregon-postgres.render.com
    DB_PORT=5432
    DB_DATABASE=villa_upsell_production
    DB_USERNAME=villa_user
    DB_PASSWORD=your_generated_password
+   ```
 
-   # Mail Configuration
+   **Mail Configuration:**
+   ```
    MAIL_MAILER=sendgrid
    MAIL_FROM_ADDRESS=support@holidayupsell.com
    MAIL_FROM_NAME="Villa Upsell"
-
-   # SendGrid (Production)
    SENDGRID_API_KEY=your_production_sendgrid_key
+   ```
 
-   # Stripe (Production - LIVE KEYS)
+   **Stripe Configuration (Production - LIVE KEYS):**
+   ```
    STRIPE_KEY=pk_live_your_live_publishable_key
    STRIPE_SECRET_KEY=sk_live_your_live_secret_key
    STRIPE_CONNECT_CLIENT_ID=ca_your_live_connect_client_id
    STRIPE_WEBHOOK_SECRET=whsec_your_live_webhook_secret
+   ```
 
-   # Twilio (Production)
+   **Twilio Configuration (Production):**
+   ```
    TWILIO_ACCOUNT_SID=your_production_twilio_sid
    TWILIO_AUTH_TOKEN=your_production_twilio_token
    TWILIO_WHATSAPP_FROM=whatsapp:+your_production_whatsapp_number
+   ```
 
-   # Wise (Production)
+   **Wise Configuration:**
+   ```
    WISE_API_KEY=your_production_wise_api_key
    WISE_TOKEN=your_production_wise_token
    WISE_PROFILE_ID=58946812
+   ```
 
-   # Session & Cache
+   **Session & Cache:**
+   ```
    SESSION_DRIVER=database
    SESSION_LIFETIME=120
    CACHE_STORE=file
    QUEUE_CONNECTION=database
+   ```
 
-   # Logging
+   **Logging:**
+   ```
    LOG_CHANNEL=stack
    LOG_LEVEL=error
    ```
+
+4. **Click "Save Changes" after adding all variables**
 
 ### **Step 3.4: Advanced Settings**
 1. **Auto-Deploy**: Enable (deploys on git push)
@@ -214,7 +267,7 @@
 
 ## 🎨 **PHASE 4: FRONTEND DEPLOYMENT**
 
-### **Step 4.1: Create Static Site**
+### **Step 4.1: Deploy Guest Frontend (villa-upsell-guest)**
 1. **In Render Dashboard:**
    - Click "New +" button
    - Select "Static Site"
@@ -222,35 +275,54 @@
    - **Branch**: `main`
    - **Root Directory**: Leave empty (or `villa-upsell-guest` if in subfolder)
 
-### **Step 4.2: Configure Build Settings**
-1. **Build Command:**
-   ```bash
-   npm install
-   npm run build
+2. **Configure Build Settings:**
+   - **Build Command**: `npm install && npm run build`
+   - **Publish Directory**: `dist`
+   - **Environment**: `Node`
+
+3. **Configure Environment Variables:**
    ```
-
-2. **Publish Directory:**
-   ```bash
-   dist
-   ```
-
-3. **Environment**: `Node`
-
-### **Step 4.3: Configure Frontend Environment Variables**
-1. **Add these environment variables:**
-
-   ```env
    VITE_API_URL=https://your-backend-service.onrender.com
    VITE_STRIPE_PUBLISHABLE_KEY=pk_live_your_live_publishable_key
    ```
 
-### **Step 4.4: Custom Domain Setup**
+4. **Name your service**: `villa-upsell-guest`
+
+### **Step 4.2: Deploy Admin Frontend (villa-upsell-admin)**
 1. **In Render Dashboard:**
-   - Go to your static site
+   - Click "New +" button
+   - Select "Static Site"
+   - **Connect Repository**: Select your `villa-upsell-admin` repository
+   - **Branch**: `main`
+   - **Root Directory**: Leave empty (or `villa-upsell-admin` if in subfolder)
+
+2. **Configure Build Settings:**
+   - **Build Command**: `npm install && npm run build`
+   - **Publish Directory**: `dist`
+   - **Environment**: `Node`
+
+3. **Configure Environment Variables:**
+   ```
+   VITE_API_URL=https://your-backend-service.onrender.com
+   VITE_STRIPE_PUBLISHABLE_KEY=pk_live_your_live_publishable_key
+   ```
+
+4. **Name your service**: `villa-upsell-admin`
+
+### **Step 4.3: Custom Domain Setup**
+1. **For Guest Frontend:**
+   - Go to your guest static site
    - Click "Settings" tab
    - Click "Custom Domains"
-   - Add your domain: `your-domain.com`
-   - Follow DNS instructions
+   - Add domain: `your-domain.com` (main website)
+
+2. **For Admin Frontend:**
+   - Go to your admin static site
+   - Click "Settings" tab
+   - Click "Custom Domains"
+   - Add domain: `admin.your-domain.com` (admin panel)
+
+3. **Follow DNS instructions for both domains**
 
 ---
 
@@ -447,14 +519,28 @@
    - Add custom domain: `api.your-domain.com`
    - Update DNS records as instructed by Render
 
-2. **Frontend domain:**
+2. **Guest Frontend domain:**
    - Add custom domain: `your-domain.com`
    - Update DNS records
 
-3. **Update environment variables:**
+3. **Admin Frontend domain:**
+   - Add custom domain: `admin.your-domain.com`
+   - Update DNS records
+
+4. **Update environment variables in Backend:**
    ```env
    APP_URL=https://api.your-domain.com
    APP_FRONTEND_URL=https://your-domain.com
+   APP_ADMIN_URL=https://admin.your-domain.com
+   ```
+
+5. **Update environment variables in Guest Frontend:**
+   ```env
+   VITE_API_URL=https://api.your-domain.com
+   ```
+
+6. **Update environment variables in Admin Frontend:**
+   ```env
    VITE_API_URL=https://api.your-domain.com
    ```
 
@@ -613,21 +699,24 @@
 ## 💰 **COST ESTIMATION**
 
 ### **Free Tier (Testing):**
-- Web Service: Free (with limitations)
-- PostgreSQL: Free (with limitations)
-- Static Site: Free
+- Backend Web Service: Free (with limitations)
+- PostgreSQL Database: Free (with limitations)
+- Guest Static Site: Free
+- Admin Static Site: Free
 - **Total**: $0/month
 
 ### **Production Tier:**
-- Web Service: $7/month (Starter)
-- PostgreSQL: $7/month (Starter)
-- Static Site: Free
+- Backend Web Service: $7/month (Starter)
+- PostgreSQL Database: $7/month (Starter)
+- Guest Static Site: Free
+- Admin Static Site: Free
 - **Total**: $14/month
 
 ### **High Traffic Tier:**
-- Web Service: $25/month (Standard)
-- PostgreSQL: $25/month (Standard)
-- Static Site: Free
+- Backend Web Service: $25/month (Standard)
+- PostgreSQL Database: $25/month (Standard)
+- Guest Static Site: Free
+- Admin Static Site: Free
 - **Total**: $50/month
 
 ---
@@ -645,5 +734,74 @@ Your Render deployment is successful when:
 - [ ] SSL certificates are active
 - [ ] Custom domains work
 - [ ] Performance is acceptable
+
+---
+
+## 📝 **ENVIRONMENT VARIABLES SUMMARY**
+
+### **Backend Web Service Environment Variables:**
+```env
+# Application
+APP_NAME=Villa Upsell
+APP_ENV=production
+APP_KEY=base64:your_generated_app_key
+APP_DEBUG=false
+APP_URL=https://your-backend-service.onrender.com
+APP_FRONTEND_URL=https://your-guest-service.onrender.com
+APP_ADMIN_URL=https://your-admin-service.onrender.com
+
+# Database
+DB_CONNECTION=pgsql
+DB_HOST=dpg-xxxxx-a.oregon-postgres.render.com
+DB_PORT=5432
+DB_DATABASE=villa_upsell_production
+DB_USERNAME=villa_user
+DB_PASSWORD=your_generated_password
+
+# API Keys
+SENDGRID_API_KEY=your_production_sendgrid_key
+STRIPE_KEY=pk_live_your_live_publishable_key
+STRIPE_SECRET_KEY=sk_live_your_live_secret_key
+STRIPE_CONNECT_CLIENT_ID=ca_your_live_connect_client_id
+STRIPE_WEBHOOK_SECRET=whsec_your_live_webhook_secret
+TWILIO_ACCOUNT_SID=your_production_twilio_sid
+TWILIO_AUTH_TOKEN=your_production_twilio_token
+TWILIO_WHATSAPP_FROM=whatsapp:+your_production_whatsapp_number
+WISE_API_KEY=your_production_wise_api_key
+WISE_TOKEN=your_production_wise_token
+WISE_PROFILE_ID=58946812
+```
+
+### **Guest Frontend Environment Variables:**
+```env
+VITE_API_URL=https://your-backend-service.onrender.com
+VITE_STRIPE_PUBLISHABLE_KEY=pk_live_your_live_publishable_key
+```
+
+### **Admin Frontend Environment Variables:**
+```env
+VITE_API_URL=https://your-backend-service.onrender.com
+VITE_STRIPE_PUBLISHABLE_KEY=pk_live_your_live_publishable_key
+```
+
+### **How to Set Environment Variables in Render:**
+
+1. **For Backend Web Service:**
+   - Go to your backend service in Render Dashboard
+   - Click "Environment" tab
+   - Add each variable one by one
+   - Click "Save Changes"
+
+2. **For Guest Static Site:**
+   - Go to your guest static site in Render Dashboard
+   - Click "Environment" tab
+   - Add the 2 variables
+   - Click "Save Changes"
+
+3. **For Admin Static Site:**
+   - Go to your admin static site in Render Dashboard
+   - Click "Environment" tab
+   - Add the 2 variables
+   - Click "Save Changes"
 
 **Ready to start with Phase 1?** 🚀
